@@ -16,9 +16,9 @@ const UserInfo = () => {
       </div>
 
       <div className="icons flex gap-4 cursor-pointer ">
-        <BsThreeDots size={32}/>
-        <FaVideo size={28}/>
-        <FaEdit size={26}/>
+        <BsThreeDots size={28}/>
+        <FaVideo size={26}/>
+        <FaEdit size={24}/>
 
       </div>
     </div>

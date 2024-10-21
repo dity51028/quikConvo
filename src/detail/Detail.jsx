@@ -2,7 +2,7 @@ import React from 'react'
 
 const Detail = () => {
   return (
-    <div className='detail flex flex-1 border'>Detail</div>
+    <div className='detail flex flex-1 '>Detail</div>
   )
 }
 
