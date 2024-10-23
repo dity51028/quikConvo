@@ -37,7 +37,27 @@ const Chat = () => {
 
       </div>
 
-      <div className="center border-b border-gray-400 flex flex-col flex-1 p-5 gap-4 overflow-y-scroll">
+      <div className="center border-b border-gray-400 flex flex-col flex-1 p-5 gap-4 overflow-y-scroll scrollbar-thin  scrollbar-thumb-blue-950 scrollbar-track-transparent">
+       
+      <div className="message flex gap-2 w-[70%]">
+          <img src={avatar} alt="avtar" className='rounded-full h-10 w-10'/>
+          <div className='bg-slate-200 text-blue-950 rounded-xl p-3'>
+          <p > hii, sir
+          </p>
+          <span className='text-xs flex float-end'>11.11 am</span>
+          </div>
+        </div>
+
+        <div className="message-own flex justify-end w-full">
+          
+        <div className='text-slate-200 bg-blue-950 rounded-xl p-3 w-[60%]' >
+          <p > hello, ma'am
+          </p>
+          <span className='text-xs flex float-end'>11.11 am</span>
+          </div> 
+                  
+        </div>
+       
         <div className="message flex gap-2 w-[70%]">
           <img src={avatar} alt="avtar" className='rounded-full h-10 w-10'/>
           <div className='bg-slate-200 text-blue-950 rounded-xl p-3'>
