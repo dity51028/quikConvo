@@ -6,7 +6,7 @@ import Login from './login/Login'
 import Notification from './notification/Notification'
 
 const App = () => {
-  const user = true;
+  const user = false;
 
   return (
     <div className="bg-[url('./assets/bg.jpg')]  bg-cover bg-center bg-no-repeat h-screen flex items-center justify-center ">

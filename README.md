@@ -10,4 +10,5 @@ Currently, two official plugins are available:
 
 # QuikConvo - a chat application using react & firebase
 
-
+# Authentication - firebase
+# Database - firestore

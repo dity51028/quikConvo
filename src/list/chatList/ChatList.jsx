@@ -2,10 +2,11 @@ import React, { useState } from 'react'
 import { FaSearch,FaPlus } from "react-icons/fa";
 import { FiPlusCircle,FiMinusCircle } from "react-icons/fi";
 import avatar from '../../assets/avatar.png'
+import AddUser from './addUser/AddUser';
 
 
 const ChatList = () => {
-    const [addMode,setAddMode]=useState(true)
+    const [addMode,setAddMode]=useState(false)
   return (
     
         <div className="chatlist mt-6 flex flex-col flex-1 overflow-y-scroll scrollbar-thin  scrollbar-thumb-blue-950 scrollbar-track-transparent">
@@ -104,6 +105,7 @@ const ChatList = () => {
                     </div>
                 </div>
                 </div>
+                {addMode && <AddUser/>}
                 
         </div>
     

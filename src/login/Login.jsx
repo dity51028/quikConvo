@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import avtar from '../assets/avatar.png'
 import { toast } from 'react-toastify'
+import {createUserWithEmailAndPassword} from 'firebase/auth'
+import { auth } from '../lib/firebase'
 
 const Login = () => {
 
@@ -23,6 +25,25 @@ const Login = () => {
     e.preventDefault();
     toast.warn("hello")
   }
+  const handleSignUp =async e=>{
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const {Username,Email,password} = Object.fromEntries(formData)
+    
+    try{
+
+      const res = await createUserWithEmailAndPassword(auth,Email,password)
+      console.log(Email,password);
+      handleLogin()
+
+    }catch(err){
+      console.log(err);
+      toast.error(err.message)
+    }
+
+
+  }
 
   return (
     <div className='auth flex items-center justify-around w-[100%] h-[100%]'>
@@ -44,7 +65,7 @@ const Login = () => {
       <div className="signup flex justify-between">
       <div className="item">
               <h2 className='text-2xl mb-3 text-white'>Create an account</h2>
-              <form className='flex flex-col gap-4' onSubmit={handleLogin}>
+              <form className='flex flex-col gap-4' onSubmit={handleSignUp}>
                 <div className='flex gap-2'>
                 <img src={avatar.url || {avtar} } alt="" height={52} width={52} />
                 <label htmlFor="file" className='text-white font-bold underline cursor-pointer'>Upload an image</label>
