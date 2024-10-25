@@ -3,6 +3,7 @@ import avatar from '../assets/avatar.png'
 import { FaChevronCircleUp,FaChevronCircleDown } from "react-icons/fa";
 import { IoMdDownload } from "react-icons/io";
 import photo from  '../assets/photo.jpeg'
+import { auth } from '../lib/firebase';
 
 
 const Detail = () => {
@@ -65,7 +66,7 @@ const Detail = () => {
       </div>
       <div className="buttons flex flex-col gap-4 absolute bottom-12 ml-10 ">
       <button className='bg-red-400 hover:bg-red-600 px-14 py-2 '>Block User</button>
-      <button className='bg-slate-300 text-black hover:bg-white  px-14 py-2'>Log Out</button>
+      <button className='bg-slate-300 text-black hover:bg-white  px-14 py-2' onClick={()=>auth.signOut()}>Log Out</button>
       </div>
       
 

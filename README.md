@@ -12,4 +12,6 @@ Currently, two official plugins are available:
 
 # react-toastify - notificatiion
 # Authentication - firebase
-# Database - firestore
+# Database - firebase firestore
+# storage - firebase storage
+# zustand - state management library
