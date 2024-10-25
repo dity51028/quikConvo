@@ -2,7 +2,9 @@ import React, { useState } from 'react'
 import avtar from '../assets/avatar.png'
 import { toast } from 'react-toastify'
 import {createUserWithEmailAndPassword} from 'firebase/auth'
-import { auth } from '../lib/firebase'
+import { auth, db } from '../lib/firebase'
+import { doc, setDoc } from "firebase/firestore"; 
+import upload from '../lib/upload'
 
 const Login = () => {
 
@@ -10,6 +12,8 @@ const Login = () => {
     file:null,
     url:""
   })
+
+  const [loading,setLoading] = useState(false)
 
   const handleAvatar = e =>{
     if(e.target.files[0]){
@@ -21,25 +25,38 @@ const Login = () => {
    
   }
 
-  const handleLogin = e =>{
-    e.preventDefault();
-    toast.warn("hello")
-  }
+  
+
   const handleSignUp =async e=>{
     e.preventDefault();
-
+    setLoading(true)
     const formData = new FormData(e.target);
     const {Username,Email,password} = Object.fromEntries(formData)
     
     try{
 
       const res = await createUserWithEmailAndPassword(auth,Email,password)
-      console.log(Email,password);
-      handleLogin()
+      
+      const imgURL = await upload(avatar.file)
 
+      await setDoc(doc(db, "users", res.user.uid), {
+       Username,
+       Email,
+       avatar:imgURL,
+       id: res.user.uid,
+       blockList:[]
+      });
+
+      await setDoc(doc(db, "userChat", res.user.uid), {
+        chats:[],
+       });
+
+      toast.success("Account created successfully !! ")
     }catch(err){
       console.log(err);
       toast.error(err.message)
+    }finally{
+      setLoading(false)
     }
 
 
@@ -50,10 +67,10 @@ const Login = () => {
       <div className="login ">
             <div className="item">
               <h2 className='text-2xl mb-3 text-white'>Welcome Back , </h2>
-              <form className='flex flex-col gap-4' onSubmit={handleLogin}>
+              <form className='flex flex-col gap-4'>
                 <input type="text" placeholder='Enter Username' name='Usernmae' className=' bg-blue-950/50 outline-none p-3 rounded-xl text-white '/>
                 <input type="password" placeholder='Enter password' name='Password' className=' bg-blue-950/50 outline-none p-3 rounded-xl text-white '/>
-                <button className='bg-blue-900 p-2 rounded-xl text-white'>Login</button>
+                <button className='bg-blue-900 p-2 rounded-xl text-white disabled:bg-blue-800/30 disabled:cursor-not-allowed' disabled={loading}>{loading ? "Loading":"Login"}</button>
               </form>
             </div>
       </div>
@@ -75,7 +92,7 @@ const Login = () => {
                 <input type="text" placeholder='Enter Username' name='Username' className=' bg-blue-950/50 outline-none p-3 rounded-xl text-white '/>
                 <input type="text" placeholder='Enter Email' name='Email' className=' bg-blue-950/50 outline-none p-3 rounded-xl text-white '/>
                 <input type="password" placeholder='Enter password' name='password' className=' bg-blue-950/50 outline-none p-3 rounded-xl text-white '/>
-                <button className='bg-blue-900 p-2 rounded-xl text-white'>Sign Up</button>
+                <button className='bg-blue-900 p-2 rounded-xl text-white  disabled:bg-blue-800/30 disabled:cursor-not-allowed'disabled={loading}>{loading ? "Loading":"Signup"}</button>
               </form>
             </div>
       </div>

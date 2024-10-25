@@ -10,5 +10,6 @@ Currently, two official plugins are available:
 
 # QuikConvo - a chat application using react & firebase
 
+# react-toastify - notificatiion
 # Authentication - firebase
 # Database - firestore
