@@ -8,6 +8,7 @@ import { arrayUnion, doc, getDoc, onSnapshot, updateDoc } from 'firebase/firesto
 import { db } from '../lib/firebase';
 import { useChatStore } from '../lib/chatStore';
 import { useUserStore } from '../lib/userStore';
+import upload from '../lib/upload';
 
 
 
@@ -16,6 +17,10 @@ const Chat = () => {
   const [open,setOpen] = useState(false);
   const [chats,setChats] = useState([]);
   const [text,setText] = useState('');
+  const [img, setimg] = useState({
+    file:null,
+    url:"",
+  });
 
   const { currentUser} = useUserStore();
   const { chatId,user } = useChatStore();
@@ -36,21 +41,38 @@ const Chat = () => {
     }
   },[chatId]);
 
-  console.log(chats);
+  
 
   const handleEmoji = e =>{
     setText((prev) => prev+e.emoji)
   }
+
+  const handleimg = e =>{
+    if(e.target.files[0]){
+      setimg({
+        file:e.target.files[0],
+        url:URL.createObjectURL(e.target.files[0])
+      })
+    }
+   
+  }
+
  
    const handleSent = async() =>{
      if(text==='') return;
 
+     let imgUrl = null;
+
      try{
+       if(img.file){
+        imgUrl = await upload(img.file);
+       }
         await updateDoc(doc(db,"chats",chatId),{
           messages:arrayUnion({
             senderId : currentUser.id,
             text,
             createdAt:new Date(),
+            ...(imgUrl && {img:imgUrl}),
           }),
         });
 
@@ -83,6 +105,13 @@ const Chat = () => {
      }catch(err){
       console.log(err)
      }
+
+     setimg({
+      file:null,
+      url:"",
+     });
+
+     setText("");
    }
 
 
@@ -110,8 +139,7 @@ const Chat = () => {
       <div className="center border-b border-gray-400 flex flex-col flex-1 p-5 gap-4 overflow-y-scroll scrollbar-thin  scrollbar-thumb-blue-950 scrollbar-track-transparent">
       {
        chats?.messages?.map((message) => {
-       return (
-      <div key={message?.createAt}>
+       return ( <div key={message?.createAt}>
         <div className="message flex gap-2 w-[70%]">
           <img src={avatar} alt="avatar" className="rounded-full h-10 w-10" />
           <div className="bg-slate-200 text-blue-950 rounded-xl p-3">
@@ -125,24 +153,28 @@ const Chat = () => {
             }
           </div>
         </div>
-        
-        <div className="message-own flex justify-end w-full">  
-          <div className="text-slate-200 bg-blue-950 rounded-xl p-3 w-[60%]">
-            <p>hello, ma'am</p>
-            <span className="text-xs flex float-end">11.11 am</span>
-          </div>
-        </div>
       </div>
     );
   })
 }
+       {img.url && <div className="message-own flex justify-end w-full">  
+          <div className="text-slate-200 bg-blue-950 rounded-xl p-3 w-[60%]">
+            <img src={img.url} alt="" />
+          </div>
+        </div>}
       <div ref={endRef}></div>
 
       </div>
 
       <div className="bottom flex gap-2 justify-between items-center mr-3  mt-4">
             <div className="icons flex gap-2 text-xl cursor-pointer">
-                  <IoImageOutline/>
+              <div>
+              <label htmlFor="file">'
+              <IoImageOutline className=' cursor-pointer'/>
+              </label>
+               <input type="file" id="file" style={{display:'none'}} onChange={handleimg}/>
+              </div>
+              
                   <IoCameraOutline/>
                   <IoMicOutline/>
             </div>
