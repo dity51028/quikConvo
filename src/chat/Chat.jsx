@@ -4,9 +4,10 @@ import { IoCallOutline,IoVideocamOutline,IoInformationCircleOutline,IoCameraOutl
 import { BsEmojiSmileFill } from "react-icons/bs";
 import { BsFillSendFill } from "react-icons/bs";
 import EmojiPicker from 'emoji-picker-react';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { arrayUnion, doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useChatStore } from '../lib/chatStore';
+import { useUserStore } from '../lib/userStore';
 
 
 
@@ -16,7 +17,8 @@ const Chat = () => {
   const [chats,setChats] = useState([]);
   const [text,setText] = useState('');
 
-  const { chatId } = useChatStore();
+  const { currentUser} = useUserStore();
+  const { chatId,user } = useChatStore();
 
   const endRef = useRef(null);
 
@@ -39,8 +41,52 @@ const Chat = () => {
   const handleEmoji = e =>{
     setText((prev) => prev+e.emoji)
   }
+ 
+   const handleSent = async() =>{
+     if(text==='') return;
 
-  console.log(text);
+     try{
+        await updateDoc(doc(db,"chats",chatId),{
+          messages:arrayUnion({
+            senderId : currentUser.id,
+            text,
+            createdAt:new Date(),
+          }),
+        });
+
+
+        const userIDs = [currentUser.id,user.id];
+
+        userIDs.forEach(async(id)=>{
+          const userChatRef = doc(db,'userChat',id);
+          const userChatsSnapshot = await getDoc(userChatRef);
+  
+  
+          if(userChatsSnapshot.exists()){
+            const userChatData = userChatsSnapshot.data()
+            const chatIndex = userChatData.chats.findIndex(c=>c.chatId === chatId)
+  
+            userChatData.chats[chatIndex].lastMessage = text;
+            userChatData.chats[chatIndex].isSeen = id === currentUser.id ? true : false;
+            userChatData.chats[chatIndex].updatedAt = Date.now();
+  
+            await updateDoc(userChatRef,{
+              chats:userChatData.chats
+            });
+  
+          }
+
+        });
+
+       
+
+     }catch(err){
+      console.log(err)
+     }
+   }
+
+
+  
   return (
     <div className='chat h-[100%] flex flex-col flex-grow-[2] border-l border-r border-gray-400 ml-2 pl-4'>
       <div className="top flex justify-between items-center border-b border-gray-400 py-2">
@@ -71,6 +117,12 @@ const Chat = () => {
           <div className="bg-slate-200 text-blue-950 rounded-xl p-3">
             <p>{message.text}</p>
             {/*<span className="text-xs flex float-end">{message.}</span>*/}
+            {
+              message.img && <img
+              src={message.img}
+              alt=''
+              />
+            }
           </div>
         </div>
         
@@ -110,7 +162,9 @@ const Chat = () => {
                   <EmojiPicker open={open} onEmojiClick={handleEmoji}/>
                   </div>
                   
-                  <button className='text-blue-950 text-2xl'><BsFillSendFill/></button>
+                  <button className='text-white text-2xl' 
+                  onClick={handleSent}
+                  ><BsFillSendFill/></button>
             </div>
 
       </div>

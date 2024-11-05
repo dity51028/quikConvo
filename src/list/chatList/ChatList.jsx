@@ -4,7 +4,7 @@ import { FiPlusCircle, FiMinusCircle } from "react-icons/fi";
 import avatar from '../../assets/avatar.png';
 import AddUser from './addUser/AddUser';
 import { useUserStore } from '../../lib/userStore';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useChatStore } from '../../lib/chatStore';
 
@@ -40,7 +40,27 @@ const ChatList = () => {
 
 
     const handleSelect =async (chat)=>{
-        changeChat(chat.chatId,chat.user)
+
+        const userChats = chats.map(item=>{
+            const {user,...rest} = item;
+            return rest;
+        });
+        const chatIndex = userChats.findIndex(item=>item.chatId === chat.chatId)
+
+        userChats[chatIndex].isSeen = true;
+        const userChatRef = doc(db,'userChat',currentUser.id);
+
+        try {
+            await updateDoc(userChatRef,{
+                chats:userChats,
+            })
+            changeChat(chat.chatId,chat.user)
+            
+        } catch (err) {
+            console.log(err)
+            
+        }
+       
 
     }
 
@@ -64,6 +84,9 @@ const ChatList = () => {
                         <div className="item flex items-center m-6 py-2 gap-4 border-b-2 border-gray-400 pb-3 hover:cursor-pointer" 
                         key={chat.chatId}
                         onClick={()=>handleSelect(chat)}
+                        style={{
+                            backgroundColor:chat?.isSeen ? 'transparent' : '#5183fe',
+                        }}
                         >
                             <img src={chat.user?.avatar || avatar} alt="avatar" className="rounded-full w-14 h-14" />
                             <div className="text">
