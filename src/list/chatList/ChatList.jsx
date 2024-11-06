@@ -11,6 +11,8 @@ import { useChatStore } from '../../lib/chatStore';
 const ChatList = () => {
     const [addMode, setAddMode] = useState(true);
     const [chats, setChats] = useState([]);
+    const [input,setInput] = useState("");
+
     const { currentUser } = useUserStore();
     const { changeChat } = useChatStore();
 
@@ -57,19 +59,19 @@ const ChatList = () => {
             changeChat(chat.chatId,chat.user)
             
         } catch (err) {
-            console.log(err)
-            
+            console.log(err)   
         }
-       
-
     }
+
+
+    const filteredChat = chats.filter(c=>c.user.Username.toLowerCase().includes(input.toLowerCase()))
 
     return (
         <div className="chatlist mt-6 flex flex-col flex-1 overflow-y-scroll scrollbar-thin scrollbar-thumb-blue-950 scrollbar-track-transparent">
             <div className="search flex justify-between items-center gap-5">
                 <div className="searchBar flex bg-blue-950/50 h-10 items-center ml-6 p-4 gap-2 rounded-lg">
                     <FaSearch />
-                    <input type="search" placeholder="search" className="bg-transparent outline-none" />
+                    <input type="search" placeholder="search" className="bg-transparent outline-none" onChange={(e)=>setInput(e.target.value)}/>
                 </div>
                 {
                     addMode
@@ -80,7 +82,7 @@ const ChatList = () => {
 
             <div className="chatItems">
                 {
-                    chats.map((chat) => (
+                    filteredChat.map((chat) => (
                         <div className="item flex items-center m-6 py-2 gap-4 border-b-2 border-gray-400 pb-3 hover:cursor-pointer" 
                         key={chat.chatId}
                         onClick={()=>handleSelect(chat)}
