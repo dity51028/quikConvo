@@ -23,7 +23,7 @@ const Chat = () => {
   });
 
   const { currentUser} = useUserStore();
-  const { chatId,user } = useChatStore();
+  const { chatId,user,isCurrentUserBlocked,isreceiverBlocked } = useChatStore();
 
   const endRef = useRef(null);
 
@@ -120,9 +120,9 @@ const Chat = () => {
     <div className='chat h-[100%] flex flex-col flex-grow-[2] border-l border-r border-gray-400 ml-2 pl-4'>
       <div className="top flex justify-between items-center border-b border-gray-400 py-2">
         <div className="user flex gap-2 ">
-          <img src={avatar} alt="" className='rounded-full h-14 w-14 '/>
+          <img src={user?.avatar || avatar} alt="" className='rounded-full h-14 w-14 '/>
           <div className="texts  ">
-            <span className='text-md font-bold'>John Doe</span>
+            <span className='text-md font-bold'>{user?.Username || "User"}</span>
             <p className='text-sm text-gray-300'>Lorem ipsum,sit ameret</p>
           </div>
         </div>
@@ -136,35 +136,37 @@ const Chat = () => {
 
       </div>
 
-      <div className="center border-b border-gray-400 flex flex-col flex-1 p-5 gap-4 overflow-y-scroll scrollbar-thin  scrollbar-thumb-blue-950 scrollbar-track-transparent">
-      {
-       chats?.messages?.map((message) => {
-       return ( <div key={message?.createAt}>
-        <div className="message flex gap-2 w-[70%]">
+      <div className="center border-b border-gray-400 flex flex-col flex-1 p-5 gap-4 overflow-y-scroll scrollbar-thin scrollbar-thumb-blue-950 scrollbar-track-transparent">
+  {chats?.messages?.map((message) => {
+    return (
+      <div
+        key={message?.createdAt}
+        className={message.senderId === currentUser?.id ? "message-own flex justify-end w-full" : "message flex gap-2 w-[70%]"}
+      >
+        {!message.senderId === currentUser?.id && (
           <img src={avatar} alt="avatar" className="rounded-full h-10 w-10" />
-          <div className="bg-slate-200 text-blue-950 rounded-xl p-3">
-            <p>{message.text}</p>
-            {/*<span className="text-xs flex float-end">{message.}</span>*/}
-            {
-              message.img && <img
-              src={message.img}
-              alt=''
-              />
-            }
-          </div>
+        )}
+        <div className={`${message.senderId === currentUser?.id ? "bg-blue-950 text-slate-200" : "bg-slate-200 text-blue-950"} rounded-xl p-3`}>
+          <p>{message.text}</p>
+          {message.img && <img src={message.img} alt="" />}
         </div>
       </div>
     );
-  })
-}
-       {img.url && <div className="message-own flex justify-end w-full">  
-          <div className="text-slate-200 bg-blue-950 rounded-xl p-3 w-[60%]">
-            <img src={img.url} alt="" />
-          </div>
-        </div>}
-      <div ref={endRef}></div>
+  })}
 
-      </div>
+{img.url && (
+  <div
+    className={img.userId === currentUser?.id ? "message-own flex justify-end w-full" : "message flex w-[70%]"}
+  >  
+    <div className={`${img.userId === currentUser?.id ? "text-slate-200 bg-blue-950" : "bg-slate-200 text-blue-950"} rounded-xl p-3 w-[60%]`}>
+      <img src={img.url} alt="" />
+    </div>
+  </div>
+)}
+
+  <div ref={endRef}></div>
+</div>
+
 
       <div className="bottom flex gap-2 justify-between items-center mr-3  mt-4">
             <div className="icons flex gap-2 text-xl cursor-pointer">
@@ -180,10 +182,11 @@ const Chat = () => {
             </div>
 
            
-              <input type="text" placeholder='Type Your Text Here...' 
+              <input type="text" placeholder={(isCurrentUserBlocked || isreceiverBlocked) ? "You cannot sent a message":'Type Your Message...' }
               onChange={(e)=>setText(e.target.value)}
               value={text}
-              className='flex flex-1 bg-blue-950/50 h-10 rounded-lg p-2 outline-none '/>
+              disabled={isCurrentUserBlocked || isreceiverBlocked}
+              className='flex flex-1 bg-blue-950/50 h-10 rounded-lg p-2 outline-none disabled:cursor-not-allowed '/>
 
            
 
@@ -194,8 +197,9 @@ const Chat = () => {
                   <EmojiPicker open={open} onEmojiClick={handleEmoji}/>
                   </div>
                   
-                  <button className='text-white text-2xl' 
+                  <button className='text-white text-2xl disabled:cursor-not-allowed' 
                   onClick={handleSent}
+                  disabled={isCurrentUserBlocked || isreceiverBlocked}
                   ><BsFillSendFill/></button>
             </div>
 

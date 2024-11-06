@@ -3,15 +3,38 @@ import avatar from '../assets/avatar.png'
 import { FaChevronCircleUp,FaChevronCircleDown } from "react-icons/fa";
 import { IoMdDownload } from "react-icons/io";
 import photo from  '../assets/photo.jpeg'
-import { auth } from '../lib/firebase';
+import { auth, db } from '../lib/firebase';
+import { useChatStore } from '../lib/chatStore';
+import { useUserStore } from '../lib/userStore';
+import { arrayRemove, arrayUnion, doc, updateDoc } from 'firebase/firestore';
 
 
 const Detail = () => {
+
+  const {chatId,user,isCurrentUserBlocked,isreceiverBlocked,changeBlock} = useChatStore();
+  const {currentUser} = useUserStore();
+
+  const handleBlock =async ()=>{
+
+    if(!user) return;
+
+    const userDocRef = doc(db,'users',currentUser.id)
+    try{
+      await updateDoc(userDocRef,{
+        blockList : isreceiverBlocked ? arrayRemove(user.id) : arrayUnion(user.id)
+      });
+      changeBlock()
+
+    }catch(err){
+      console.log(err);
+    }
+
+  }
   return (
     <div className='detail flex flex-col flex-1 gap-2 '>
       <div className="top flex flex-col items-center  text-center border-b border-gray-400 pb-6">
-        <img src={avatar} alt="" className='rounded-full w-20 h-20' />
-        <h1 className='text-lg font-bold p-2'>John Doe</h1>
+        <img src={user?.avatar || avatar} alt="" className='rounded-full w-20 h-20' />
+        <h1 className='text-lg font-bold p-2'>{user?.Username || "User"}</h1>
         <p className='text-sm'>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
       </div>
 
@@ -65,7 +88,11 @@ const Detail = () => {
             </div>
       </div>
       <div className="buttons flex flex-col gap-4 absolute bottom-12 ml-10 ">
-      <button className='bg-red-400 hover:bg-red-600 px-14 py-2 '>Block User</button>
+      <button className='bg-red-400 hover:bg-red-600 px-14 py-2 ' onClick={handleBlock}>
+        {
+          isCurrentUserBlocked? "Blocked" : isreceiverBlocked ? 'User Blocked' : "Block"
+        }
+      </button>
       <button className='bg-slate-300 text-black hover:bg-white  px-14 py-2' onClick={()=>auth.signOut()}>Log Out</button>
       </div>
       
