@@ -10,6 +10,7 @@ import { useChatStore } from '../lib/chatStore';
 import { useUserStore } from '../lib/userStore';
 import upload from '../lib/upload';
 import { useOutletContext } from 'react-router-dom';
+import Detail from '../detail/Detail';
 
 
 
@@ -18,6 +19,7 @@ const Chat = () => {
   const [open,setOpen] = useState(false);
   const [chats,setChats] = useState([]);
   const [text,setText] = useState('');
+  const [showDetails,setshowDetails] = useState(false)
   const [img, setimg] = useState({
     file:null,
     url:"",
@@ -120,10 +122,12 @@ const Chat = () => {
 
   
   return (
+    <div className='flex items-center h-full w-full'>
+      <div className='w-full h-full overflow-hidden'>
     <div className='chat h-[100%] flex flex-col flex-grow-[2] border-l border-r border-gray-400 ml-2 pl-4'>
       <div className="top flex justify-between items-center border-b border-gray-400 py-2">
         <div className="user flex gap-2 ">
-          <img src={user?.avatar || avatar} alt="" className='rounded-full h-14 w-14 '/>
+          <img src={user?.avatar || avatar} alt="" className='rounded-full h-14 w-14 ' onClick={()=>setshowDetails(true)}/>
           <div className="texts  ">
             <span className='text-md font-bold'>{user?.Username || "User"}</span>
             <p className='text-sm text-gray-300'>Lorem ipsum,sit ameret</p>
@@ -140,7 +144,7 @@ const Chat = () => {
       </div>
 
       <div className="center border-b border-gray-400 flex flex-col flex-1 p-5 gap-4 overflow-y-scroll scrollbar-thin scrollbar-thumb-blue-950 scrollbar-track-transparent">
-  {chats?.messages?.map((message) => {
+        {chats?.messages?.map((message) => {
     return (
       <div
         key={message?.createdAt}
@@ -183,8 +187,6 @@ const Chat = () => {
                   <IoCameraOutline/>
                   <IoMicOutline/>
             </div>
-
-           
               <input type="text" placeholder={(isCurrentUserBlocked || isreceiverBlocked) ? "You cannot sent a message":'Type Your Message...' }
               onChange={(e)=>setText(e.target.value)}
               value={text}
@@ -207,6 +209,9 @@ const Chat = () => {
             </div>
 
       </div>
+    </div>
+    </div>
+    {showDetails && <Detail/>}
     </div>
   )
 }

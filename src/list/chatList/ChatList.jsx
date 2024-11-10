@@ -7,6 +7,7 @@ import { useUserStore } from '../../lib/userStore';
 import { doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useChatStore } from '../../lib/chatStore';
+import { useNavigate } from 'react-router-dom';
 
 const ChatList = () => {
     const [addMode, setAddMode] = useState(true);
@@ -15,6 +16,7 @@ const ChatList = () => {
 
     const { currentUser } = useUserStore();
     const { changeChat } = useChatStore();
+    const navigate = useNavigate();
 
 
     useEffect(() => {
@@ -85,7 +87,7 @@ const ChatList = () => {
                     filteredChat.map((chat) => (
                         <div className="item flex items-center m-6 py-2 gap-4 border-b-2 border-gray-400 pb-3 hover:cursor-pointer" 
                         key={chat.chatId}
-                        onClick={()=>handleSelect(chat)}
+                        onClick={()=>navigate(`${chat.chatId}`)}
                         style={{
                             backgroundColor:chat?.isSeen ? 'transparent' : '#5183fe',
                         }}
